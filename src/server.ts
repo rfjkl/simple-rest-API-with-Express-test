@@ -1,14 +1,9 @@
-import http from "node:http"
+import express from "express"
 
-function sum(a : number, b : number) : number{
-    return a + b;
-}
+const PORT = 3333
 
-var result = sum(5,6);
+const app = express()
 
-console.log(result);
-
-
-http.createServer((request, response) => {
-    response.end("ok")
-}).listen(3333)
+app.listen(PORT, () =>{
+    console.log("server is running on port: " + PORT);
+})
