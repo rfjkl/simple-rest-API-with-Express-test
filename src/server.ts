@@ -1,23 +1,20 @@
-import express from "express"
-import { myMiddleware } from "./middlewares/myMiddleware.js"
+import express, { NextFunction, Request, Response } from "express"
+import { routes } from "./routes/index.js"
+import { AppError } from "./Utils/AppError.js"
 
 const PORT = 3333
 
 const app = express()
 app.use(express.json())
+app.use(routes)
 
+app.use((error: any, req : Request, res : Response, _ : NextFunction) =>{
 
-app.get("/products", (req, res) =>{
-    const {page, limit} = req.query
-
-    res.send(`Produtos ${page} de ${limit}`)
-})
-
-// Middleware local
-app.post("/products", myMiddleware, (req, res) =>{
-    const {name , price} = req.body
-
-    res.status(201).json({name, price, userId: req.userId})
+    if(error instanceof AppError){
+        res.status(error.statusCode).json({message: error.message})
+    }
+    
+    res.status(500).json({message: error.message})
 })
 
 app.listen(PORT, () =>{
