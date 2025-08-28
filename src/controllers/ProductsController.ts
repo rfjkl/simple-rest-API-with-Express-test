@@ -1,5 +1,6 @@
 import { Request, Response } from "express";
 import { AppError } from "../Utils/AppError.js";
+import { z } from "zod";
 
 export class ProductsController{
     index(req : Request, res : Response){
@@ -9,14 +10,14 @@ export class ProductsController{
     }
 
     create(req : Request, res : Response){
-        const {name , price} = req.body
 
-        if(!name){
-            throw new AppError("Product name is mandatory!");
-        }else if(!price){
-            throw new AppError("Product price is mandatory!");
-        }
+        const bodySchema = z.object({
+            name : z.string().trim().min(6, {message: "Name must have 6 or more characters"}),
+            price : z.number({required_error: "Price is required", invalid_type_error: "Price must be a number", }).positive()
+        })
 
-        res.status(201).json({name, price, userId: req.userId})
+        const {name, price} = bodySchema.parse(req.body)
+
+        res.status(201).send({name, price, userId: req.userId})
     }
 }
